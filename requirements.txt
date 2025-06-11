@@ -3,4 +3,5 @@ ultralytics
 Pillow
 numpy
 opencv-python-headless
+deepface
 
