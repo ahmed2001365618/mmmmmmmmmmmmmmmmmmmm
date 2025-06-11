@@ -5,7 +5,7 @@ import tempfile
 
 # App Configuration
 st.set_page_config(page_title="Multi-Model Detector", layout="centered")
-st.title("🧠 Medical and Electrical Images Detection")
+st.title(" Medical Images Detection")
 st.write("Select the type of detection you want, then upload an image.")
 
 # Model configuration with custom confidence thresholds
@@ -24,7 +24,7 @@ MODEL_CONFIG = {
 }
 
 # Model selection
-model_option = st.selectbox("🔍 Select Detection Type:", list(MODEL_CONFIG.keys()))
+model_option = st.selectbox(" Select Detection Type:", list(MODEL_CONFIG.keys()))
 
 # Load models
 config = MODEL_CONFIG[model_option]
@@ -38,7 +38,7 @@ else:
     detection_model = YOLO(config["path"])
 
 # File uploader
-uploaded_file = st.file_uploader("📤 Upload an image...", type=["jpg", "jpeg", "png"])
+uploaded_file = st.file_uploader(" Upload an image...", type=["jpg", "jpeg", "png"])
 
 if uploaded_file is not None:
     image = Image.open(uploaded_file).convert("RGB")
@@ -82,7 +82,7 @@ if uploaded_file is not None:
     classification_label = None
     classification_conf = None
     if classification_model:
-        with st.spinner("🧠 Classifying tumor type..."):
+        with st.spinner(" Classifying tumor type..."):
             cls_results = classification_model.predict(image_path, task="classify")
             class_id = int(cls_results[0].probs.top1)
             class_conf = float(cls_results[0].probs.top1conf)
@@ -93,10 +93,10 @@ if uploaded_file is not None:
     # Display results
     col1, col2 = st.columns(2)
     with col1:
-        st.subheader("📤 Uploaded Image")
+        st.subheader(" Uploaded Image")
         st.image(image, use_column_width=True)
     with col2:
-        st.subheader("📍 Detection Result")
+        st.subheader(" Detection Result")
         st.image(detection_image, use_column_width=True)
         
         # Display model-specific confidence threshold
@@ -104,7 +104,7 @@ if uploaded_file is not None:
         st.caption(f"Showing predictions ≥ {threshold:.0%} confidence")
 
     # Detection details
-    with st.expander("📝 Detection Details"):
+    with st.expander(" Detection Details"):
         if boxes is not None and len(boxes) > 0:
             high_conf_detections = [box for box in boxes if float(box.conf[0]) >= threshold]
             
