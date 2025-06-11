@@ -4,4 +4,6 @@ Pillow
 numpy
 opencv-python-headless
 deepface
-
+deepface>=0.0.79
+torch
+torchvision
