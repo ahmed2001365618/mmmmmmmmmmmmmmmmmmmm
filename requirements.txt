@@ -1,4 +1,3 @@
-deepface
 streamlit
 ultralytics
 Pillow
