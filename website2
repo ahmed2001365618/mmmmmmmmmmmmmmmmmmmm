@@ -1,0 +1,90 @@
+import streamlit as st
+from ultralytics import YOLO
+from PIL import Image
+import tempfile
+
+# App Configuration
+st.set_page_config(page_title="Multi-Model Detector", layout="centered")
+st.title("🧠 Medical and Electrical Images Detection")
+st.write("Select the type of detection you want, then upload an image.")
+
+# Add "Teeth Detection" to the options
+model_option = st.selectbox(
+    "🔍 Select Detection Type:",
+    ("pcb smd Detection", "Brain Tumor Detection", "Broken Bone Detection", "eye suger", "Teeth Detection")
+)
+
+# Model loading logic
+detection_model = None
+classification_model = None
+
+if model_option == "Brain Tumor Detection":
+    detection_model = YOLO("brain_tumor_yolo.pt")
+    classification_model = YOLO("best.pt")  # Classification model for tumors
+else:
+    model_paths = {
+        "pcb smd Detection": "smd111.pt",
+        "Broken Bone Detection": "bone.pt",
+        "eye suger": "suger2.pt",
+        "Teeth Detection": "teeth.pt"
+    }
+    detection_model = YOLO(model_paths[model_option])
+
+# File uploader
+uploaded_file = st.file_uploader("📤 Upload an image...", type=["jpg", "jpeg", "png"])
+
+if uploaded_file is not None:
+    image = Image.open(uploaded_file).convert("RGB")
+
+    # Save image temporarily
+    with tempfile.NamedTemporaryFile(delete=False, suffix=".jpg") as temp:
+        image.save(temp.name)
+        image_path = temp.name
+
+    # Run detection
+    with st.spinner("Running object detection..."):
+        detection_results = detection_model(image_path)
+        detection_image = detection_results[0].plot()
+        boxes = detection_results[0].boxes
+
+    # Classification (only for Brain Tumor)
+    classification_label = None
+    if classification_model:
+        with st.spinner("🧠 Classifying tumor type..."):
+            cls_results = classification_model.predict(image_path, task="classify")
+            class_id = int(cls_results[0].probs.top1)
+            class_conf = float(cls_results[0].probs.top1conf)
+            if class_conf >= 0.6:  # Only show if confidence ≥ 60%
+                classification_label = f"{classification_model.names[class_id]} ({class_conf:.2%})"
+            else:
+                classification_label = None
+
+    # Display results
+    col1, col2 = st.columns(2)
+    with col1:
+        st.subheader("📤 Uploaded Image")
+        st.image(image, use_column_width=True)
+    with col2:
+        st.subheader("📍 Detection Result")
+        st.image(detection_image, use_column_width=True)
+
+    # Detection details
+    with st.expander("📝 Detection Details"):
+        if boxes is not None and len(boxes) > 0:
+            shown = False
+            for box in boxes:
+                confidence = float(box.conf[0])
+                if confidence >= 0.6:  # Show only predictions ≥ 60%
+                    cls_id = int(box.cls[0])
+                    label = detection_model.names[cls_id]
+                    st.write(f"- **{label}**: {confidence:.2%}")
+                    shown = True
+            if not shown:
+                st.write("❌ No high-confidence objects detected (≥ 60%).")
+        else:
+            st.write("❌ No objects detected.")
+
+    # Tumor classification result (if available)
+    if classification_label:
+        st.markdown("### 🧬 Tumor Classification")
+        st.success(f"Predicted Type: **{classification_label}**")
