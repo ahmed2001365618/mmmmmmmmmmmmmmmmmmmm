@@ -1,6 +1,5 @@
 streamlit
 ultralytics
-
-Pillow
-numpy
 deepface
+opencv-python-headless
+Pillow
