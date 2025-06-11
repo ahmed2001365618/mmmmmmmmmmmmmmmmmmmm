@@ -10,12 +10,12 @@ st.write("Select the type of detection you want, then upload an image.")
 
 # Model configuration with custom confidence thresholds
 MODEL_CONFIG = {
-    "pcb smd Detection": {"path": "smd111.pt", "threshold": 0.75, "color": "red"},
+    "pcb smd Detection": {"path": "smd111.pt", "threshold": 0.4, "color": "red"},
     "Brain Tumor Detection": {
         "detection_path": "brain_tumor_yolo.pt",
         "classification_path": "best.pt",
         "detection_threshold": 0.2,
-        "classification_threshold": 0.75,
+        "classification_threshold": 0.4,
         "color": "red"
     },
     "Broken Bone Detection": {"path": "bone.pt", "threshold": 0.50, "color": "red"},
